@@ -3,12 +3,12 @@
 #include <X11/Xlib.h>
 
 typedef struct { 
-   Display* display;
-   Window window;
-   GLXContext context;
-   XVisualInfo* vi;
-   Atom delete_message;
+	Display* display;
+	Window window;
+	GLXContext context;
+	XVisualInfo* vi;
+	Atom delete_message;
 
-   uint8_t running;
-   uint8_t has_context;
+	uint8_t running;
+	uint8_t has_context;
 } x11_window;

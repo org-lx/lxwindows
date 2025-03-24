@@ -1,16 +1,22 @@
 #pragma once
-#include <GL/gl.h>
+
+#define LXW_FUNC
 
 #ifdef __linux
 #define LXW_USE_X11
 #endif
-#ifdef __WIN32
+#ifdef _WIN32
 #define LXW_USE_WINDOWS
+#include <Windows.h>
+#undef LXW_FUNC
+#define LXW_FUNC __declspec(dllexport)
 #endif
+
+#include <GL/gl.h>
 
 typedef void* lxwindow;
 
-int lxw_init();
+LXW_FUNC int lxw_init();
 
 /*********************
  *                   *
@@ -18,24 +24,24 @@ int lxw_init();
  *                   *
  *********************/
 
-lxwindow lxw_create_window(int width, int height, const char* name);
-void lxw_process_window(lxwindow);
-int lxw_window_is_open(lxwindow);
-void lxw_destroy_window(lxwindow);
+LXW_FUNC lxwindow lxw_create_window(int width, int height, const char* name);
+LXW_FUNC void lxw_process_window(lxwindow);
+LXW_FUNC int lxw_window_is_open(lxwindow);
+LXW_FUNC void lxw_destroy_window(lxwindow);
 
 // opengl specific stuff
-void lxw_make_gl_context(lxwindow);
-void lxw_swap_buffers(lxwindow);
+LXW_FUNC void lxw_make_gl_context(lxwindow);
+LXW_FUNC void lxw_swap_buffers(lxwindow);
 
 // query info about the window
-void lxw_query_window_size(lxwindow, int* w, int* h);
-void lxw_query_window_pos(lxwindow, int* x, int* h);
-char* lxw_query_window_name(lxwindow);
+LXW_FUNC void lxw_query_window_size(lxwindow, int* w, int* h);
+LXW_FUNC void lxw_query_window_pos(lxwindow, int* x, int* h);
+LXW_FUNC char* lxw_query_window_name(lxwindow);
 
 // set info about the window
-void lxw_set_window_size(lxwindow, int w, int h);
-void lxw_set_window_pos(lxwindow, int x, int y);
-void lxw_set_window_name(lxwindow, char* name);
+LXW_FUNC void lxw_set_window_size(lxwindow, int w, int h);
+LXW_FUNC void lxw_set_window_pos(lxwindow, int x, int y);
+LXW_FUNC void lxw_set_window_name(lxwindow, char* name);
 
 /***************
  *             *
@@ -45,4 +51,4 @@ void lxw_set_window_name(lxwindow, char* name);
 
 #include "keycodes.h"
 
-int lxw_get_key_state(lxwindow, char key);
+LXW_FUNC int lxw_get_key_state(lxwindow, char key);
