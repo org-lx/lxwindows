@@ -12,5 +12,6 @@ obj/
 **.sln
 **.vcxproj**
 
-# exclude clangd cache folder
+# exclude cache folders
 .cache/
+.vs/
