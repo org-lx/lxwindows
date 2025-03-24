@@ -2,12 +2,13 @@
 bin/
 obj/
 
+**/obj
+**/bin
+
 # exclude build files
-./**compile_commands.json
-./**Makefile
-./**.make
-Makefile
-*.make
+**compile_commands.json
+**Makefile
+**.make
 
 # exclude clangd cache folder
 .cache/
