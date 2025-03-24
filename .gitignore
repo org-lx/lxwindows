@@ -9,6 +9,8 @@ obj/
 **compile_commands.json
 **Makefile
 **.make
+**.sln
+**.vcxproj**
 
 # exclude clangd cache folder
 .cache/
