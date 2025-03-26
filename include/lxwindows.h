@@ -24,6 +24,17 @@ LXW_FUNC int lxw_init();
  *                   *
  *********************/
 
+enum lxw_window_flag {
+	lxw_window_flag_none = 0,
+	lxw_window_flag_rgba = 1,
+	lxw_window_flag_rgb = 2,
+	lxw_window_flag_depth_size = 4,
+	lxw_window_flag_gl_major = 8,
+	lxw_window_flag_gl_minor = 16,
+	lxw_window_flag_enable_experimental = 32
+};
+
+LXW_FUNC void lxw_set_window_flag(int flag, int value);
 LXW_FUNC lxwindow lxw_create_window(int width, int height, const char* name);
 LXW_FUNC void lxw_process_window(lxwindow);
 LXW_FUNC int lxw_window_is_open(lxwindow);
@@ -42,6 +53,7 @@ LXW_FUNC char* lxw_query_window_name(lxwindow);
 LXW_FUNC void lxw_set_window_size(lxwindow, int w, int h);
 LXW_FUNC void lxw_set_window_pos(lxwindow, int x, int y);
 LXW_FUNC void lxw_set_window_name(lxwindow, char* name);
+LXW_FUNC void lxw_set_window_icon(lxwindow, unsigned char* data, int w, int h);
 
 /***************
  *             *

@@ -106,4 +106,3 @@ void lxw_swap_buffers(lxwindow window) {
 }
 
 #endif
-
