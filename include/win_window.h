@@ -11,6 +11,9 @@ typedef struct {
 	HGLRC hglrc;
 	MSG msg;
 
+	int width;
+	int height;
+
 	unsigned char running;
 	unsigned char has_context;
 } win_window;

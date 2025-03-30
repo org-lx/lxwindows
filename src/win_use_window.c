@@ -16,6 +16,10 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
 		case WM_DESTROY:
 			PostQuitMessage(0);
 			return 0;
+		case WM_SIZE:
+		case WM_SIZING:
+			glViewport(0, 0, LOWORD(lParam), HIWORD(lParam));
+			break;
 	}
 
 	return DefWindowProc(hwnd, uMsg, wParam, lParam);
@@ -71,7 +75,11 @@ lxwindow lxw_create_window(int width, int height, const char* name) {
 	ShowWindow(window->hwnd, SW_SHOW);
 	UpdateWindow(window->hwnd);
 
+	window->width = width;
+	window->height = height;
 	window->running = 1;
+	
+	_lxw_add_window((lxwindow)window, name);
 	return (lxwindow)window;
 }
 
@@ -93,7 +101,7 @@ void lxw_destroy_window(lxwindow window) {
 	}
 
 	ReleaseDC(wwindow->hwnd, wwindow->hdc);
-	free(window);
+	free(wwindow);
 }
 
 void lxw_make_gl_context(lxwindow window) {

@@ -11,4 +11,7 @@ typedef struct {
 
 	uint8_t running;
 	uint8_t has_context;
+
+	int width;
+	int height;
 } x11_window;

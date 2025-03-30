@@ -28,14 +28,25 @@ int main(void) {
 	lxw_make_gl_context(window);
 
 
+	int prev_width = 1920, prev_height = 1080;
 	while (lxw_window_is_open(window)) {
-		lxw_process_window(window);
+       lxw_process_window(window);
 
-		glClearColor(0.2f, 0.3f, 0.7f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT);
+		 /*
+       int w, h;
+       lxw_query_window_size(window, &w, &h);
 
-		lxw_swap_buffers(window);
-	}
+       if (w != prev_width || h != prev_height) {
+          glViewport(0, 0, w, h);
+          prev_width = w;
+          prev_height = h;
+       }*/
+
+       glClearColor(0.2f, 0.3f, 0.7f, 1.0f);
+       glClear(GL_COLOR_BUFFER_BIT);
+
+       lxw_swap_buffers(window);
+    }
 
 	lxw_destroy_window(window);
 }

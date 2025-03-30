@@ -48,12 +48,20 @@ LXW_FUNC void lxw_swap_buffers(lxwindow);
 LXW_FUNC void lxw_query_window_size(lxwindow, int* w, int* h);
 LXW_FUNC void lxw_query_window_pos(lxwindow, int* x, int* h);
 LXW_FUNC char* lxw_query_window_name(lxwindow);
+LXW_FUNC void lxw_query_window_min_size(lxwindow, int* mw, int* mh);
 
 // set info about the window
 LXW_FUNC void lxw_set_window_size(lxwindow, int w, int h);
 LXW_FUNC void lxw_set_window_pos(lxwindow, int x, int y);
 LXW_FUNC void lxw_set_window_name(lxwindow, char* name);
+LXW_FUNC void lxw_set_window_min_size(lxwindow, int mw, int mh);
 LXW_FUNC void lxw_set_window_icon(lxwindow, unsigned char* data, int w, int h);
+
+// multiple windows stuff
+LXW_FUNC lxwindow lxw_get_window_by_name(char*);
+
+// internal use only
+LXW_FUNC void _lxw_add_window(lxwindow, char*);
 
 /***************
  *             *

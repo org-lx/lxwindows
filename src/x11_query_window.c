@@ -5,11 +5,8 @@
 
 void lxw_query_window_size(lxwindow window, int* w, int* h) {
 	x11_window* xwindow = (x11_window*)window;
-	XWindowAttributes attrs;
-	XGetWindowAttributes(xwindow->display, xwindow->window, &attrs);
-
-	*w = attrs.width;
-	*h = attrs.height;
+	*w = xwindow->width;
+	*h = xwindow->height;
 }
 
 void lxw_query_window_pos(lxwindow window, int* x, int* y) {

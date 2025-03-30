@@ -61,4 +61,17 @@ void lxw_set_window_icon(lxwindow window, unsigned char* data, int w, int h) {
 	free(icon_data);
 }
 
+
+void lxw_set_window_min_size(lxwindow window, int mw, int mh) {
+	x11_window* xwindow = (x11_window*)window;
+	XSizeHints size_hints = {
+		.flags = PMinSize,
+		.min_width = mw,
+		.min_height = mh
+	};
+	
+	XSetWMNormalHints(xwindow->display, xwindow->window, &size_hints);
+	XFlush(xwindow->display);
+}
+
 #endif

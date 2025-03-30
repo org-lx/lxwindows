@@ -4,6 +4,7 @@
 #include "x11_window.h"
 
 #include <stdlib.h>
+#include <stdio.h>
 #include <assert.h>
 
 int lxw_init() {
@@ -47,14 +48,18 @@ lxwindow lxw_create_window(int width, int height, const char* name) {
 	XSetWMProtocols(window->display, window->window, &window->delete_message, 1);
 
 	XMapWindow(window->display, window->window);
-	
+	XSelectInput(window->display, window->window, StructureNotifyMask);
+
+	window->width = width;
+	window->height = height;
 	window->running = 1;
+
+	_lxw_add_window(window, (char*)name);
 	return (lxwindow)window;
 }
 
 void lxw_process_window(lxwindow window) {
 	x11_window* xwindow = (x11_window*)window;
-
 	XEvent event;
 
 	while (XPending(xwindow->display)) {
@@ -64,6 +69,14 @@ void lxw_process_window(lxwindow window) {
 			case ClientMessage:
 				if ((Atom)event.xclient.data.l[0] == xwindow->delete_message) {
 					xwindow->running = 0;
+				}
+				break;
+
+			case ConfigureNotify:
+				if (event.xconfigure.width != xwindow->width || event.xconfigure.height != xwindow->height) {
+					xwindow->width = event.xconfigure.width;
+					xwindow->height = event.xconfigure.height;
+					glViewport(0, 0, xwindow->width, xwindow->height);
 				}
 				break;
 
@@ -102,7 +115,13 @@ void lxw_make_gl_context(lxwindow window) {
 
 void lxw_swap_buffers(lxwindow window) {
 	x11_window* xwindow = (x11_window*)window;
-	glXSwapBuffers(xwindow->display, xwindow->window);
+
+	int w,h;
+	lxw_query_window_size(window, &w, &h);
+
+	if (w > 0 && h > 25) {
+		glXSwapBuffers(xwindow->display, xwindow->window);
+	}
 }
 
 #endif
