@@ -18,7 +18,7 @@ void lxw_query_window_pos(lxwindow window, int* x, int* y) {
 	*y = attrs.y;
 }
 
-char* lxw_query_window_name(lxwindow window) {
+const char* lxw_query_window_name(lxwindow window) {
 	char* window_name;
 	x11_window* xwindow = (x11_window*)window;
 	XFetchName(xwindow->display, xwindow->window, &window_name);

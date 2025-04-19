@@ -2,12 +2,14 @@
 
 #ifdef LXW_USE_X11
 #include "x11_window.h"
+#include "internal.h"
 
 #include <stdlib.h>
 #include <stdio.h>
 #include <assert.h>
 
 int lxw_init() {
+	_lxw_window_initilize_creation_data();
 	return 1;
 }
 
@@ -52,9 +54,8 @@ lxwindow lxw_create_window(int width, int height, const char* name) {
 
 	window->width = width;
 	window->height = height;
-	window->running = 1;
+	window->details += 0b10000000;
 
-	_lxw_add_window(window, (char*)name);
 	return (lxwindow)window;
 }
 
@@ -68,7 +69,7 @@ void lxw_process_window(lxwindow window) {
 		switch (event.type) {
 			case ClientMessage:
 				if ((Atom)event.xclient.data.l[0] == xwindow->delete_message) {
-					xwindow->running = 0;
+					xwindow->details = 0;
 				}
 				break;
 
@@ -88,13 +89,13 @@ void lxw_process_window(lxwindow window) {
 
 int lxw_window_is_open(lxwindow window) {
 	x11_window* xwindow = (x11_window*)window;
-	return xwindow->running;
+	return xwindow->details & 0b1;
 }
 
 void lxw_destroy_window(lxwindow window) {
 	x11_window* xwindow = (x11_window*)window;
 
-	if (xwindow->has_context) {
+	if (xwindow->details & 0b01) {
 		glXMakeCurrent(xwindow->display, None, NULL);
 		glXDestroyContext(xwindow->display, xwindow->context);
 	}
@@ -110,7 +111,7 @@ void lxw_make_gl_context(lxwindow window) {
 	xwindow->context = glXCreateContext(xwindow->display, xwindow->vi, NULL, GL_TRUE);
 	glXMakeCurrent(xwindow->display, xwindow->window, xwindow->context);
 
-	xwindow->has_context = 1;
+	xwindow->details += 0b01;
 }
 
 void lxw_swap_buffers(lxwindow window) {

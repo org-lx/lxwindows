@@ -23,11 +23,10 @@ void lxw_query_window_pos(lxwindow window, int* x, int* y) {
 	*y = rect.top;
 }
 
-char* lxw_query_window_name(lxwindow window) {
+const char* lxw_query_window_name(lxwindow window) {
 	win_window* wwindow = (win_window*)window;
-	char* title = malloc(128);
-	if (title != NULL)
-		GetWindowText(wwindow->hwnd, (LPWSTR)title, sizeof(title));
+	static char title[256]; 
+	GetWindowText(wwindow->hwnd, (LPWSTR)title, 255);
 	return title;
 }
 

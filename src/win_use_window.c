@@ -2,16 +2,20 @@
 
 #ifdef LXW_USE_WINDOWS
 #include "win_window.h"
+#include "internal.h"
 
 #include <stdlib.h>
 #include <stdio.h>
 #include <assert.h>
 
 int lxw_init() {
+	_lxw_window_initilize_creation_data();
 	return 1;
 }
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
+	win_window* window = GetWindowLongPtr(hwnd, GWLP_USERDATA);
+
 	switch (uMsg) {
 		case WM_DESTROY:
 			PostQuitMessage(0);
@@ -79,7 +83,8 @@ lxwindow lxw_create_window(int width, int height, const char* name) {
 	window->height = height;
 	window->running = 1;
 	
-	_lxw_add_window((lxwindow)window, name);
+	SetWindowLongPtr(window->hwnd, GWLP_USERDATA, window);
+
 	return (lxwindow)window;
 }
 
