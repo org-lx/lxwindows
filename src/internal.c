@@ -1,6 +1,18 @@
 #include "internal.h"
 #include "lxwindows.h"
 
+#if (defined(__GNUC__) || defined(_MSC_VER)) && defined(DEBUG)
+	#ifdef LXW_USE_EGL
+		#pragma message "Compiling Using EGL"
+	#endif
+	#ifdef LXW_USE_WGL
+		#pragma message "Compiling Using WGL"
+	#endif
+	#ifdef LXW_USE_GLX
+		#pragma message "Compiling Using GLX"
+	#endif
+#endif
+
 lxw_window_creation_data _lxw_window_creation_data;
 
 void _lxw_window_initilize_creation_data() {

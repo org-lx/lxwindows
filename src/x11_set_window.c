@@ -2,7 +2,6 @@
 
 #ifdef LXW_USE_X11
 #include "x11_window.h"
-
 #include <stdlib.h>
 
 void lxw_set_window_size(lxwindow window, int w, int h) {

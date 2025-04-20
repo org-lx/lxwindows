@@ -2,32 +2,38 @@
 
 #define LXW_FUNC
 
+//#define LXW_USE_EGL
+//#define LXW_USE_GLX
+//#define LXW_USE_WGL
+
 #ifdef __linux
-#define LXW_USE_X11
-#include <GL/gl.h>
+	#define LXW_USE_X11
+	#include <GL/gl.h>
 #endif
 #ifdef _WIN32
-#include <gl/GL.h>
-#define LXW_USE_WINDOWS
-#undef LXW_FUNC
-#define LXW_FUNC __declspec(dllexport)
+	#include <gl/GL.h>
+	#define LXW_USE_WINDOWS
+	#undef LXW_FUNC
+	#define LXW_FUNC __declspec(dllexport)
 #endif
 
 #if !__has_include("EGL/egl.h")
-#ifdef __linux
-#define LXW_USE_GLX
-#elif defined(_WIN32)
-#define LXW_USE_WGL
-#endif
+	#ifdef __linux
+		#define LXW_USE_GLX
+	#elif defined(_WIN32)
+		#define LXW_USE_WGL
+	#endif
 #endif
 
 #if !defined(LXW_USE_EGL) && !defined(LXW_USE_GLX) && defined(LXW_USE_X11)
-#define LXW_USE_EGL
+	#define LXW_USE_EGL
 #endif
 
 #if !defined(LXW_USE_EGL) && !defined(LXW_USE_WGL) && defined(LXW_USE_WINDOWS)
-#define LXW_USE_WGL
+	#define LXW_USE_WGL
 #endif
+
+
 
 typedef void* lxwindow;
 

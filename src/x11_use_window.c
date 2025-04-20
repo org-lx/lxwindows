@@ -219,6 +219,7 @@ void lxw_swap_buffers(lxwindow window) {
 	eglWaitClient();
 #elif defined(LXW_USE_GLX)
 	glXSwapBuffers(xwindow->display, xwindow->window);
+	glXWaitGL();
 #endif
 }
 
