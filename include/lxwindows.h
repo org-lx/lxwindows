@@ -7,20 +7,27 @@
 #endif
 #ifdef _WIN32
 #define LXW_USE_WINDOWS
-#include <Windows.h>
 #undef LXW_FUNC
 #define LXW_FUNC __declspec(dllexport)
 #endif
+
+#if !__has_include("EGL/egl.h")
+#ifdef __linux
+#define LXW_USE_GLX
+#elif defined(_WIN32)
+#define LXW_USE_WGL
+#endif
+#endif
+
 
 #if !defined(LXW_USE_EGL) && !defined(LXW_USE_GLX) && defined(LXW_USE_X11)
 #define LXW_USE_EGL
 #endif
 
 #if !defined(LXW_USE_EGL) && !defined(LXW_USE_WGL) && defined(LXW_USE_WINDOWS)
-#define LXW_USE_EGL
+#define LXW_USE_WGL
 #endif
 
-#include <GL/gl.h>
 
 typedef void* lxwindow;
 
@@ -37,9 +44,9 @@ LXW_FUNC int lxw_init();
 #define LXW_WINDOW_FLAG_BLUE_SIZE 					3
 #define LXW_WINDOW_FLAG_ALPHA_SIZE 					4
 #define LXW_WINDOW_FLAG_DEPTH_SIZE  				6
-#define LXW_WINDOW_FLAG_STENCIL_SIZE  				6
-#define LXW_WINDOW_FLAG_GL_MAJOR 					7
-#define LXW_WINDOW_FLAG_GL_MINOR						8
+#define LXW_WINDOW_FLAG_STENCIL_SIZE  				7
+#define LXW_WINDOW_FLAG_GL_MAJOR 					8
+#define LXW_WINDOW_FLAG_GL_MINOR					9
 
 LXW_FUNC void lxw_set_window_flag(int flag, int value);
 LXW_FUNC lxwindow lxw_create_window(int width, int height, const char* name);

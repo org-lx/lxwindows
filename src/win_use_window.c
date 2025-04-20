@@ -14,7 +14,7 @@ int lxw_init() {
 }
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
-	win_window* window = GetWindowLongPtr(hwnd, GWLP_USERDATA);
+	win_window* window = (win_window*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
 
 	switch (uMsg) {
 		case WM_DESTROY:
@@ -31,6 +31,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
 
 lxwindow lxw_create_window(int width, int height, const char* name) {
 	win_window* window = (win_window*)malloc(sizeof(win_window));
+	memset(window, 0, sizeof(win_window));
 
 	const char* className = "lxw_window";
 	WNDCLASS wc = { 0 };
@@ -44,7 +45,7 @@ lxwindow lxw_create_window(int width, int height, const char* name) {
 	MultiByteToWideChar(CP_ACP, 0, name, -1, wtitle, len);
 
 	window->hwnd = CreateWindowExW(
-		0, 
+		0,
 		className,
 		wtitle,
 		WS_OVERLAPPEDWINDOW,
@@ -57,24 +58,60 @@ lxwindow lxw_create_window(int width, int height, const char* name) {
 		wc.hInstance,
 		NULL
 	);
+	free(wtitle);
 	assert(window->hwnd != NULL);
 
 	window->hdc = GetDC(window->hwnd);
+
+#ifdef LXW_USE_WGL
+   int sum =   _lxw_window_creation_data.red_size +
+               _lxw_window_creation_data.green_size +
+               _lxw_window_creation_data.blue_size;
 
 	PIXELFORMATDESCRIPTOR pfd = { 0 };
 	pfd.nSize = sizeof(PIXELFORMATDESCRIPTOR);
 	pfd.nVersion = 1;
 	pfd.dwFlags = PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER | PFD_DRAW_TO_WINDOW;
 	pfd.iPixelType = PFD_TYPE_RGBA;
-	pfd.cColorBits = 24;
-	pfd.cRedBits = 8;
-	pfd.cGreenBits = 8;
-	pfd.cBlueBits = 8;
-	pfd.cAlphaBits = 8;
-	pfd.cDepthBits = 24;
+	pfd.cColorBits = sum;
+	pfd.cRedBits = _lxw_window_creation_data.red_size;
+	pfd.cGreenBits = _lxw_window_creation_data.green_size;
+	pfd.cBlueBits = _lxw_window_creation_data.blue_size;
+	pfd.cAlphaBits = _lxw_window_creation_data.alpha_size;
+	pfd.cDepthBits = _lxw_window_creation_data.depth_size;
+	pfd.cStencilBits = _lxw_window_creation_data.stencil_size;
 
 	int pixelFormat = ChoosePixelFormat(window->hdc, &pfd);
 	SetPixelFormat(window->hdc, pixelFormat, &pfd);
+#elif defined(LXW_USE_EGL)
+	window->display = eglGetDisplay(window->hdc);
+	assert(window->display != EGL_NO_DISPLAY);
+
+	EGLint major, minor;
+	if (!eglInitlize(window->display, &major, &minor)) {
+		assert(0 && "Failed to initilize EGL");
+	}
+
+	EGLint attribs[] = {
+		EGL_RED_SIZE, _lxw_window_creation_data.red_size,
+		EGL_GREEN_SIZE, _lxw_window_creation_data.green_size,
+		EGL_BLUE_SIZE, _lxw_window_creation_data.blue_size,
+		EGL_ALPHA_SIZE, _lxw_window_creation_data.alpha_size,
+		EGL_DEPTH_SIZE, _lxw_window_creation_data.depth_size,
+		EGL_STENCIL_SIZE, _lxw_window_creation_data.stencil_size,
+		EGL_SURFACE_TYPE, EGL_WINDOW_BIT,
+		EGL_RENDERABLE_TYPE, EGL_OPENGL_BIT,
+		EGL_NONE
+	};
+
+	EGLint numConfigs;
+	if (!eglChooseConfig(window->display, attribs, &window->config, 1, &numConfigs)) {
+		assert(0 && "Failed to choose EGL config");
+	}
+
+	window->surface = eglCreateWindowSurface(window->display, window->config, window->hwnd, NULL);
+	assert(window->surface != EGL_NO_SURFACE);
+#endif
 
 	ShowWindow(window->hwnd, SW_SHOW);
 	UpdateWindow(window->hwnd);
@@ -83,7 +120,7 @@ lxwindow lxw_create_window(int width, int height, const char* name) {
 	window->height = height;
 	window->running = 1;
 	
-	SetWindowLongPtr(window->hwnd, GWLP_USERDATA, window);
+	SetWindowLongPtr(window->hwnd, GWLP_USERDATA, (long long)window);
 
 	return (lxwindow)window;
 }
@@ -119,7 +156,12 @@ void lxw_make_gl_context(lxwindow window) {
 
 void lxw_swap_buffers(lxwindow window) {
 	win_window* wwindow = (win_window*)window;
+
+#ifdef LXW_USE_WGL
 	SwapBuffers(wwindow->hdc);
+#elif defined(LXW_USE_EGL)
+	eglSwapBuffers(wwindow->display, wwindow->surface);
+#endif
 }
 
 #endif

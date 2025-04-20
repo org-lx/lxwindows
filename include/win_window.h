@@ -1,14 +1,17 @@
 #pragma once
 
-#include <Windows.h>
+#include "lxwindows.h"
 
+#include <Windows.h>
 #include <gl/GL.h>
-#include <gl/GLU.h>
+
+#ifdef LXW_USE_EGL
+#include <EGL/egl.h>
+#endif
 
 typedef struct {
 	HWND hwnd;
 	HDC hdc;
-	HGLRC hglrc;
 	MSG msg;
 
 	int width;
@@ -16,4 +19,14 @@ typedef struct {
 
 	unsigned char running;
 	unsigned char has_context;
+
+#ifdef LXW_USE_WGL
+	HGLRC hglrc;
+#elif defined(LXW_USE_EGL)
+	EGLDisplay display;
+	EGLSurface surface;
+	EGLContext context;
+	EGLConfig config;
+#endif
+
 } win_window;

@@ -1,4 +1,12 @@
 #include "lxwindows.h"
+
+#ifdef LXW_USE_WINDOWS
+#include <Windows.h>
+#include <gl/GL.h>
+#else
+#include <GL/gl.h>
+#endif
+
 #include <stdio.h>
 
 unsigned char icon_data[64 * 64 * 4];

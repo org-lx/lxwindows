@@ -25,8 +25,10 @@ void lxw_query_window_pos(lxwindow window, int* x, int* y) {
 
 const char* lxw_query_window_name(lxwindow window) {
 	win_window* wwindow = (win_window*)window;
-	static char title[256]; 
-	GetWindowText(wwindow->hwnd, (LPWSTR)title, 255);
+	WCHAR title[256]; 
+	static char buffer[256];
+	GetWindowText(wwindow->hwnd, (WCHAR*)title, 256);
+	int result = WideCharToMultiByte(CP_UTF8, 0, title, -1, buffer, sizeof(buffer), NULL, NULL);
 	return title;
 }
 

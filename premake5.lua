@@ -12,11 +12,12 @@ project "lxwindows"
 	files { "src/**.c", "include/**.h" }
 	
 	filter "system:linux"
-		links { "X11", "GL", "GLX"}
+		links { "X11", "GL", "GLX", "EGL" }
 		linkoptions { "-Wl,-rpath,$$ORIGIN" }
 
 	filter "system:windows"
-		links { "opengl32", "glu32", "user32", "gdi32" }
+		libdirs { "bin" }
+		links { "opengl32", "glu32", "user32", "gdi32", "libEGL" }
 
 	filter "configurations:Debug"
 		defines { "DEBUG" }
