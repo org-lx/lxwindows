@@ -2,6 +2,7 @@
 
 #ifdef LXW_USE_X11
 #include "x11_window.h"
+#include <X11/extensions/XKB.h>
 #include "internal.h"
 
 #include <stdlib.h>
@@ -100,7 +101,7 @@ lxwindow lxw_create_window(int width, int height, const char* name) {
 	XSetWMProtocols(window->display, window->window, &window->delete_message, 1);
 
 	XMapWindow(window->display, window->window);
-	XSelectInput(window->display, window->window, StructureNotifyMask);
+	XSelectInput(window->display, window->window, StructureNotifyMask | KeyPressMask | KeyReleaseMask);
 
 	window->width = width;
 	window->height = height;
@@ -128,6 +129,24 @@ void lxw_process_window(lxwindow window) {
 					xwindow->width = event.xconfigure.width;
 					xwindow->height = event.xconfigure.height;
 					glViewport(0, 0, xwindow->width, xwindow->height);
+				}
+				break;
+
+			case KeyPress:
+			case KeyRelease:
+				KeyCode keycode = event.xkey.keycode;
+				if (keycode >= 0 && keycode <= 255) {
+					XEvent next_event;
+					XPeekEvent(xwindow->display, &next_event);
+
+					if (next_event.type == KeyPress && next_event.xkey.time == event.xkey.time &&
+							next_event.xkey.keycode == event.xkey.keycode) {
+						xwindow->key_states[keycode] = 1;
+						continue;
+					}
+					xwindow->key_states[keycode] = (event.type == KeyPress) ? 1 : 0;
+					printf("KeyCode %3d: %s\n", keycode,
+							xwindow->key_states[keycode] ? "PRESSED" : "RELEASED");
 				}
 				break;
 

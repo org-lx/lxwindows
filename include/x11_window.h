@@ -26,6 +26,7 @@ typedef struct {
 	int width;
 	int height;
 
+	uint8_t key_states[255];
 
 #ifdef LXW_USE_GLX
 	GLXContext context;

@@ -1,5 +1,6 @@
 #include <GL/glew.h>
 #include "lxwindows.h"
+
 #include <stdio.h>
 
 unsigned char icon_data[64 * 64 * 4];
@@ -92,12 +93,20 @@ int main(void) {
 
 	printf("OpenGL Version %d.%d is in use\n",major,minor);
 
+	float r = 0.2f;
 	while (lxw_window_is_open(window)) {
 	   lxw_process_window(window);
+
+		if (lxw_get_key_state(window, LXW_w)) {
+			r += 0.01f;
+		} else if (lxw_get_key_state(window, LXW_s)) {
+			r -= 0.01f;
+		}
 
 		int w,h;
 		lxw_query_window_size(window, &w, &h);
 		glViewport(0, 0, w, h);
+
 
 	   glClearColor(0.2f, 0.3f, 0.7f, 1.0f);
 	   glClear(GL_COLOR_BUFFER_BIT);
@@ -111,4 +120,3 @@ int main(void) {
 
 	lxw_destroy_window(window);
 }
-

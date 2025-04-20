@@ -7,9 +7,22 @@ LXWindows has an easy to use api with support for EGL, GLX, and WGL
 
 ### Windowing
 Create a window in 2 lines of code
-'''c
+
+```
+// create a 1280x720 window with the name "very cool window"
 lxw_init();
 lxw_window window = lxw_create_window(1280, 720, "very cool window");
-'''
+```
 
-//todo finish readme
+### OpenGL Support
+```
+// call lxw_make_gl_context to create a opengl context and set it as the default
+lxw_make_gl_context(window);
+```
+note that to load any functions passed 1.0, you need an external opengl loader like GLEW or GLAD
+
+### Input
+```
+// get state of the key 'a'
+uint8_t a_status = lxw_get_key_state(window, LXW_a);
+```
