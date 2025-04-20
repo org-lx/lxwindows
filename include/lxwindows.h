@@ -4,8 +4,10 @@
 
 #ifdef __linux
 #define LXW_USE_X11
+#include <GL/gl.h>
 #endif
 #ifdef _WIN32
+#include <gl/GL.h>
 #define LXW_USE_WINDOWS
 #undef LXW_FUNC
 #define LXW_FUNC __declspec(dllexport)
@@ -19,7 +21,6 @@
 #endif
 #endif
 
-
 #if !defined(LXW_USE_EGL) && !defined(LXW_USE_GLX) && defined(LXW_USE_X11)
 #define LXW_USE_EGL
 #endif
@@ -27,7 +28,6 @@
 #if !defined(LXW_USE_EGL) && !defined(LXW_USE_WGL) && defined(LXW_USE_WINDOWS)
 #define LXW_USE_WGL
 #endif
-
 
 typedef void* lxwindow;
 
@@ -46,7 +46,9 @@ LXW_FUNC int lxw_init();
 #define LXW_WINDOW_FLAG_DEPTH_SIZE  				6
 #define LXW_WINDOW_FLAG_STENCIL_SIZE  				7
 #define LXW_WINDOW_FLAG_GL_MAJOR 					8
-#define LXW_WINDOW_FLAG_GL_MINOR					9
+#define LXW_WINDOW_FLAG_GL_MINOR						9
+#define LXW_WINDOW_FLAG_PROFILE_CORE				10
+#define LXW_WINDOW_FLAG_PROFILE_COMPAT				11
 
 LXW_FUNC void lxw_set_window_flag(int flag, int value);
 LXW_FUNC lxwindow lxw_create_window(int width, int height, const char* name);
@@ -77,6 +79,35 @@ LXW_FUNC void lxw_set_window_icon(lxwindow, unsigned char* data, int w, int h);
  *             *
  ***************/
 
-#include "keycodes.h"
+#define LXW_A 'a'
+#define LXW_B 'b'
+#define LXW_C 'c'
+#define LXW_D 'd'
+#define LXW_E 'e'
+#define LXW_F 'f'
+#define LXW_G 'g'
+#define LXW_H 'h'
+#define LXW_I 'i'
+#define LXW_J 'j'
+#define LXW_K 'k'
+#define LXW_L 'l'
+#define LXW_M 'm'
+#define LXW_N 'n'
+#define LXW_O 'o'
+#define LXW_P 'p'
+#define LXW_Q 'q'
+#define LXW_R 'r'
+#define LXW_S 's'
+#define LXW_T 't'
+#define LXW_U 'u'
+#define LXW_V 'v'
+#define LXW_W 'w'
+#define LXW_X 'x'
+#define LXW_Y 'y'
+#define LXW_Z 'z'
+
+#define LXW_LEFT_MOUSE     0
+#define LXW_RIGHT_MOUSE    1
+#define LXW_CENTER_MOUSE   0
 
 LXW_FUNC int lxw_get_key_state(lxwindow, char key);

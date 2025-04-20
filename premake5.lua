@@ -10,6 +10,7 @@ project "lxwindows"
 	targetdir "bin"
 	includedirs { "include" }
 	files { "src/**.c", "include/**.h" }
+
 	
 	filter "system:linux"
 		links { "X11", "GL", "GLX", "EGL" }

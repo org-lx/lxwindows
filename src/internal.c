@@ -11,8 +11,9 @@ void _lxw_window_initilize_creation_data() {
 		.alpha_size = 8,
 		.depth_size = 24,
 		.stencil_size = 8,
-		.opengl_major = 4,
-		.opengl_minor = 6
+		.opengl_major = 3,
+		.opengl_minor = 3,
+		.profile = 1
 	};
 }
 
@@ -41,6 +42,12 @@ void lxw_set_window_flag(int flag, int value) {
 			break;
 		case(LXW_WINDOW_FLAG_GL_MINOR):
 			_lxw_window_creation_data.opengl_minor = value;
+			break;
+		case(LXW_WINDOW_FLAG_PROFILE_CORE):
+			_lxw_window_creation_data.profile = 1;
+			break;
+		case(LXW_WINDOW_FLAG_PROFILE_COMPAT):
+			_lxw_window_creation_data.profile = 2;
 			break;
 	}
 }

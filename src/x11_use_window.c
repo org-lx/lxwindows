@@ -20,19 +20,69 @@ lxwindow lxw_create_window(int width, int height, const char* name) {
 	assert(window->display != NULL);
 
 	int screen = DefaultScreen(window->display);
-	Window root = RootWindow(window->display, screen);
 
-	int glx_attr[] = { GLX_RGBA, GLX_DEPTH_SIZE, 24, GLX_DOUBLEBUFFER, None };
+#ifdef LXW_USE_EGL
+	window->egl_display = eglGetDisplay((EGLNativeDisplayType)window->display);
+	assert(window->egl_display != EGL_NO_DISPLAY);
+
+	EGLint egl_major, egl_minor;
+	eglInitialize(window->egl_display, &egl_major, &egl_minor);
+
+	eglBindAPI(EGL_OPENGL_API);
+
+	const EGLint config_attribs[] = {
+		EGL_RED_SIZE, _lxw_window_creation_data.red_size,
+		EGL_GREEN_SIZE, _lxw_window_creation_data.green_size,
+		EGL_BLUE_SIZE, _lxw_window_creation_data.blue_size,
+		//EGL_ALPHA_SIZE, _lxw_window_creation_data.alpha_size,
+		EGL_DEPTH_SIZE, _lxw_window_creation_data.depth_size,
+		EGL_STENCIL_SIZE, _lxw_window_creation_data.stencil_size,
+		EGL_RENDERABLE_TYPE, EGL_OPENGL_BIT,
+		EGL_CONFORMANT, EGL_OPENGL_BIT,
+		EGL_SURFACE_TYPE, EGL_WINDOW_BIT,
+		EGL_NONE
+	};
+
+	EGLint num_configs;
+	eglChooseConfig(window->egl_display, config_attribs, &window->config, 1, &num_configs);
+	assert(num_configs>0);
+
+	EGLint visual_id;
+	eglGetConfigAttrib(window->egl_display, window->config, EGL_NATIVE_VISUAL_ID, &visual_id);
+
+	XVisualInfo visual_template = {
+		.visualid = visual_id
+	};
+
+	int num_visuals;
+	window->vi = XGetVisualInfo(window->display, VisualIDMask, &visual_template, &num_visuals);
+	assert(window->vi != NULL && num_visuals > 0);
+	int root_depth = DefaultDepth(window->display, screen);
+	if (window->vi->depth != root_depth) {
+	    fprintf(stderr, "Depth mismatch: Visual %d vs Root %d\n",
+	            window->vi->depth, root_depth);
+	    exit(1);
+	}
+#elif defined(LXW_USE_GLX)
+	int glx_attr[] = { 	GLX_RGBA,
+								GLX_RED_SIZE, _lxw_window_creation_data.red_size,
+								GLX_GREEN_SIZE, _lxw_window_creation_data.green_size,
+								GLX_BLUE_SIZE, _lxw_window_creation_data.blue_size,
+								GLX_ALPHA_SIZE, _lxw_window_creation_data.alpha_size,
+								GLX_DEPTH_SIZE, _lxw_window_creation_data.depth_size,
+								GLX_STENCIL_SIZE, _lxw_window_creation_data.stencil_size,
+								GLX_DOUBLEBUFFER, None };
 	window->vi = glXChooseVisual(window->display, screen, glx_attr);
 	assert(window->vi != NULL);
+#endif
 
 	XSetWindowAttributes swa;
-	swa.colormap = XCreateColormap(window->display, root, window->vi->visual, AllocNone);
+	swa.colormap = XCreateColormap(window->display, RootWindow(window->display, screen), window->vi->visual, AllocNone);
 	swa.event_mask = ExposureMask | KeyPressMask;
 
 	window->window = XCreateWindow(
 			window->display,
-			root,
+			RootWindow(window->display, screen),
 			0,
 			0,
 			width,
@@ -95,10 +145,19 @@ int lxw_window_is_open(lxwindow window) {
 void lxw_destroy_window(lxwindow window) {
 	x11_window* xwindow = (x11_window*)window;
 
+#ifdef LXW_USE_EGL
+	if (xwindow->details & 0b01) {
+		eglMakeCurrent(xwindow->egl_display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
+		eglDestroyContext(xwindow->egl_display, xwindow->context);
+		eglDestroySurface(xwindow->egl_display, xwindow->surface);
+	}
+	eglTerminate(xwindow->egl_display);
+#elif defined(LXW_USE_GLX)
 	if (xwindow->details & 0b01) {
 		glXMakeCurrent(xwindow->display, None, NULL);
 		glXDestroyContext(xwindow->display, xwindow->context);
 	}
+#endif
 	
 	XDestroyWindow(xwindow->display, xwindow->window);
 	XCloseDisplay(xwindow->display);
@@ -108,21 +167,59 @@ void lxw_destroy_window(lxwindow window) {
 void lxw_make_gl_context(lxwindow window) {
 	x11_window* xwindow = (x11_window*)window;
 
+#ifdef LXW_USE_EGL
+	EGLint attr[] = {
+		EGL_GL_COLORSPACE, EGL_GL_COLORSPACE_LINEAR,
+		EGL_RENDER_BUFFER, EGL_BACK_BUFFER,
+		EGL_NONE
+	};
+	xwindow->surface = eglCreateWindowSurface(
+		xwindow->egl_display,
+		xwindow->config,
+		(EGLNativeWindowType)xwindow->window,
+		attr
+	);
+	assert(xwindow->surface != EGL_NO_SURFACE);
+
+	const EGLint context_attribs[] = {
+		EGL_CONTEXT_MAJOR_VERSION, (uint32_t)_lxw_window_creation_data.opengl_major,
+		EGL_CONTEXT_MINOR_VERSION, (uint32_t)_lxw_window_creation_data.opengl_minor,
+		EGL_CONTEXT_OPENGL_PROFILE_MASK, _lxw_window_creation_data.profile,
+		EGL_CONTEXT_OPENGL_FORWARD_COMPATIBLE, EGL_TRUE,
+		EGL_NONE
+	};
+
+	xwindow->context = eglCreateContext(
+		xwindow->egl_display,
+		xwindow->config,
+		EGL_NO_CONTEXT,
+		context_attribs
+	);
+	assert(xwindow->context != EGL_NO_CONTEXT);
+
+	eglMakeCurrent(
+		xwindow->egl_display,
+		xwindow->surface,
+		xwindow->surface,
+		xwindow->context
+	);
+
+#elif defined(LXW_USE_GLX)
 	xwindow->context = glXCreateContext(xwindow->display, xwindow->vi, NULL, GL_TRUE);
 	glXMakeCurrent(xwindow->display, xwindow->window, xwindow->context);
+#endif
 
-	xwindow->details += 0b01;
+	xwindow->details |= 0b01;
 }
 
 void lxw_swap_buffers(lxwindow window) {
 	x11_window* xwindow = (x11_window*)window;
-
-	int w,h;
-	lxw_query_window_size(window, &w, &h);
-
-	if (w > 0 && h > 25) {
-		glXSwapBuffers(xwindow->display, xwindow->window);
-	}
+#ifdef LXW_USE_EGL
+	eglSwapBuffers(xwindow->egl_display, xwindow->surface);
+	eglWaitClient();
+#elif defined(LXW_USE_GLX)
+	glXSwapBuffers(xwindow->display, xwindow->window);
+#endif
 }
 
 #endif

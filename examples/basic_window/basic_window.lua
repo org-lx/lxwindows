@@ -7,7 +7,7 @@ project "basic-window"
 	files { "basic_window.c" }
 
 	filter "system:linux"
-		links { "GL", "lxwindows" }
+		links { "GL", "lxwindows", "GLEW" }
 	filter "system:windows"
 		links { "opengl32", "lxwindows" }
 
