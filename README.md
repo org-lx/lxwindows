@@ -26,3 +26,5 @@ note that to load any functions passed 1.0, you need an external opengl loader l
 // get state of the key 'a'
 uint8_t a_status = lxw_get_key_state(window, LXW_a);
 ```
+
+You can see a full example of LXWindows in [examples/basic_window](https://github.com/org-lx/lxwindows/blob/main/examples/basic_window/basic_window.c)
