@@ -1,5 +1,5 @@
 # LXWindows
-Dependincy free windowing library written in c99 with support for X11, Windows, and Wayland
+Dependincy free windowing library written in c99 with support for X11, Windows, and is planned to be supported on Wayland
 
 LXWindows has an easy to use api with support for EGL, GLX, and WGL
 
