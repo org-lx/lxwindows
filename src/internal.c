@@ -23,8 +23,8 @@ void _lxw_window_initilize_creation_data() {
 		.alpha_size = 8,
 		.depth_size = 24,
 		.stencil_size = 8,
-		.opengl_major = 3,
-		.opengl_minor = 3,
+		.opengl_major = 4,
+		.opengl_minor = 6,
 		.profile = 1
 	};
 }
