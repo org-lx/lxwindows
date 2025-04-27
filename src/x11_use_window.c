@@ -62,7 +62,6 @@ lxwindow lxw_create_window(int width, int height, const char* name) {
 	if (window->vi->depth != root_depth) {
 	    fprintf(stderr, "Depth mismatch: Visual %d vs Root %d\n",
 	            window->vi->depth, root_depth);
-	    exit(1);
 	}
 #elif defined(LXW_USE_GLX)
 	int glx_attr[] = { 	GLX_RGBA,
@@ -101,6 +100,7 @@ lxwindow lxw_create_window(int width, int height, const char* name) {
 	XSetWMProtocols(window->display, window->window, &window->delete_message, 1);
 
 	XMapWindow(window->display, window->window);
+	XAutoRepeatOn(window->display);
 	XSelectInput(window->display, window->window, StructureNotifyMask | KeyPressMask | KeyReleaseMask);
 
 	window->width = width;
@@ -117,6 +117,7 @@ void lxw_process_window(lxwindow window) {
 	while (XPending(xwindow->display)) {
 		XNextEvent(xwindow->display, &event);
 
+		KeyCode keycode = event.xkey.keycode;
 		switch (event.type) {
 			case ClientMessage:
 				if ((Atom)event.xclient.data.l[0] == xwindow->delete_message) {
@@ -133,23 +134,22 @@ void lxw_process_window(lxwindow window) {
 				break;
 
 			case KeyPress:
+				if (keycode >= 0 && keycode <= 255) {
+					xwindow->key_states[XLookupKeysym(&event.xkey, 0)] = (event.type == KeyPress) ? 1 : 0;
+				}
+				break;
 			case KeyRelease:
-				KeyCode keycode = event.xkey.keycode;
 				if (keycode >= 0 && keycode <= 255) {
 					XEvent next_event;
 					XPeekEvent(xwindow->display, &next_event);
-
-					if (next_event.type == KeyPress && next_event.xkey.time == event.xkey.time &&
+					if (next_event.type == KeyPress &&
 							next_event.xkey.keycode == event.xkey.keycode) {
-						xwindow->key_states[keycode] = 1;
-						continue;
+						xwindow->key_states[XLookupKeysym(&event.xkey, 0)] = 1;
+					} else {
+						xwindow->key_states[XLookupKeysym(&event.xkey, 0)] = 0;
 					}
-					xwindow->key_states[keycode] = (event.type == KeyPress) ? 1 : 0;
-					printf("KeyCode %3d: %s\n", keycode,
-							xwindow->key_states[keycode] ? "PRESSED" : "RELEASED");
 				}
 				break;
-
 			default:
 				break;
 		}

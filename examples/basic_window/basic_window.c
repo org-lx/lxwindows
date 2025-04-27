@@ -97,10 +97,13 @@ int main(void) {
 	while (lxw_window_is_open(window)) {
 	   lxw_process_window(window);
 
-		if (lxw_get_key_state(window, LXW_w)) {
+		uint8_t w_state = lxw_get_key_state(window, LXW_w);
+		if (w_state) {
 			r += 0.01f;
+			printf("W Pressed\n");
 		} else if (lxw_get_key_state(window, LXW_s)) {
 			r -= 0.01f;
+			printf("S Pressed\n");
 		}
 
 		int w,h;
@@ -108,7 +111,7 @@ int main(void) {
 		glViewport(0, 0, w, h);
 
 
-	   glClearColor(0.2f, 0.3f, 0.7f, 1.0f);
+	   glClearColor(r, 0.3f, 0.7f, 1.0f);
 	   glClear(GL_COLOR_BUFFER_BIT);
 
 		glUseProgram(program);

@@ -183,6 +183,6 @@ LXW_FUNC void lxw_set_window_icon(lxwindow, unsigned char* data, int w, int h);
 
 #define LXW_LEFT_MOUSE     0
 #define LXW_RIGHT_MOUSE    1
-#define LXW_CENTER_MOUSE   0
+#define LXW_CENTER_MOUSE   2
 
 LXW_FUNC uint8_t lxw_get_key_state(lxwindow, char key);
